@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    Loading. If nothing happens, try clicking
+    <a href="javascript:no_sw()">here</a>
+    <script>
+    
+    // function for if we can't launch sw
+    function no_sw() {
+      uri_to_load += "?82946291_sw_cantload=1";
+      window.location = uri_to_load;
+    }
+
+    // get URL query params
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+      get: (searchParams, prop) => searchParams.get(prop),
+    })
+
+    try {
+      uri_to_load = params.to ? decodeURIComponent(params.to) : "index.html";
+    }
+    catch {
+      uri_to_load = "index.html";
+    }
+
+    if ('serviceWorker' in navigator) {
+
+      // prepare for load
+      navigator.serviceWorker.ready.then(r => {
+
+        // start checking if we are activated
+        // I NEED to find a better way of doing this
+        // --> but hooking / events don't work
+        done = () => {
+          clearInterval(i)
+          window.location = uri_to_load;
+        }
+        i = setInterval(() => r.active.state=="activated" && done(), 50);
+      });
+
+      // start to load
+      navigator.serviceWorker.register('sw.js')
+    }
+    else {
+      no_sw()
+    }
+    </script>
+  </body>
+</html>
