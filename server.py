@@ -45,7 +45,6 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
     # we only handle GET
     def do_GET(self):
 
-        print(self.headers.get("From-ServiceWorker"))
         # if we're not using a service worker...
         if self.headers.get("From-ServiceWorker") != "1":
 
@@ -53,16 +52,19 @@ class MyHttpRequestHandler(http.server.SimpleHTTPRequestHandler):
 
             # get the a.b/c part of a.b/c?d=e
             # ... and check it's not in the blacklist
-            print(split_path[0])
             if split_path[0] not in REDIRECT_BLACKLIST:
                 
-                # check we can actually load the service worker
-                if is_sw_able_to_load(self, split_path):
-                    self.send_response(302)
-                    self.send_header('Location', "/swloader.html?to="+self.path)
-                    self.end_headers()
+                # <TEMPORARY FIX -- MAKES MOST THINGS WORK>
+                # check we are loading an .html file
+                if split_path[0].endswith(".html"):
+                    print("loading an .html file")
+
+                    # check we can actually load the service worker
+                    if is_sw_able_to_load(self, split_path):
+                        self.send_response(302)
+                        self.send_header('Location', "/swloader.html?to="+self.path)
+                        self.end_headers()
                 
-        print(self.path)
         return http.server.SimpleHTTPRequestHandler.do_GET(self)
 
 

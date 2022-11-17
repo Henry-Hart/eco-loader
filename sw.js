@@ -16,6 +16,12 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', (e) => {
   e.respondWith((async () => {
 
+    // check if url is special
+    if (e.request.url.endsWith("/deletecache")) {
+      caches.delete("eco_webpage_cache");
+      return new Response("deleted cache!");
+    }
+
     // check if requested url is in cache
     const r = await caches.match(e.request);
     if (r) return r;
